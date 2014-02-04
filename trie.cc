@@ -21,14 +21,42 @@ class Trie {
 
 		inline void add(
 			key_list& path,
-			typename key_list::const_iterator curr
+			typename key_list::const_iterator currStep
 		) {
-			if ( curr != path.end() ) {
+			if ( currStep != path.end() ) {
 				Trie& trie(
-					this->children_[*curr]
+					this->children_[*currStep]
 				);
 
-				trie.add(path, ++curr);
+				trie.add(path, ++currStep);
+			}
+		}
+
+		inline void remove(key_list path) {
+			this->remove(path, path.begin());
+		}
+
+		inline void remove(
+			key_list& path,
+			typename key_list::const_iterator currStep
+		) {
+			if ( currStep != path.end() ) {
+				typename std::map<Key, Trie>::iterator matchingTrie(
+					this->children_.find(*currStep)
+				);
+
+				if ( matchingTrie != this->children_.end() ) {
+					typename key_list::const_iterator nextStep(
+						++currStep
+					);
+
+					if ( (*matchingTrie).second.children_.empty() ||
+					     nextStep == path.end() ) {
+						this->children_.erase(matchingTrie);
+					} else {
+						(*matchingTrie).second.remove(path, nextStep);
+					}
+				}
 			}
 		}
 
@@ -73,6 +101,13 @@ int main() {
 	test.add({2, 1, 1});
 
 	assert(test.resolve({1, 2}).second    != nullptr);
+	assert(test.resolve({1, 2, 3}).second != nullptr);
 	assert(test.resolve({1, 2, 4}).second != nullptr);
 	assert(test.resolve({3}).second       == nullptr);
+
+	test.remove({1, 2});
+
+	assert(test.resolve({1, 2, 4}).second == nullptr);
+	assert(test.resolve({1, 2, 3}).second == nullptr);
+	assert(test.resolve({1, 2}).second    == nullptr);
 }
