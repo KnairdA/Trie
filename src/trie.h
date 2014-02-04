@@ -1,9 +1,8 @@
-#include <cstdint>
+#ifndef TRIE_SRC_TRIE_H_
+#define TRIE_SRC_TRIE_H_
+
 #include <vector>
 #include <map>
-
-#include <cassert>
-#include <iostream>
 
 template <
 	typename Key
@@ -92,22 +91,4 @@ class Trie {
 
 };
 
-int main() {
-	Trie<uint8_t> test;
-
-	test.add({1, 2, 3});
-	test.add({1, 2, 4});
-	test.add({2, 1});
-	test.add({2, 1, 1});
-
-	assert(test.resolve({1, 2}).second    != nullptr);
-	assert(test.resolve({1, 2, 3}).second != nullptr);
-	assert(test.resolve({1, 2, 4}).second != nullptr);
-	assert(test.resolve({3}).second       == nullptr);
-
-	test.remove({1, 2});
-
-	assert(test.resolve({1, 2, 4}).second == nullptr);
-	assert(test.resolve({1, 2, 3}).second == nullptr);
-	assert(test.resolve({1, 2}).second    == nullptr);
-}
+#endif  // TRIE_SRC_TRIE_H_
