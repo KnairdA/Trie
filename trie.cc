@@ -10,41 +10,49 @@ template <
 >
 class Trie {
 	public:
+		typedef std::forward_list<Key> key_list;
+
 		Trie():
 			children_() { }
 
-		inline void add(std::forward_list<Key> path) {
+		inline void add(key_list path) {
 			this->add(path, path.begin());
 		}
 
-		inline void add(std::forward_list<Key>& path,
-		                typename std::forward_list<Key>::const_iterator curr) {
+		inline void add(
+			key_list& path,
+			typename key_list::const_iterator curr
+		) {
 			if ( curr != path.end() ) {
-				Trie& trie = this->children_[*curr];
+				Trie& trie(
+					this->children_[*curr]
+				);
 
 				trie.add(path, ++curr);
 			}
 		}
 
-		inline std::pair<bool, const Trie*> resolve(
-			std::forward_list<Key> path
-		) const {
+		inline std::pair<bool, const Trie*> resolve(key_list path) const {
 			return this->resolve(path, path.begin());
 		}
 
 		inline std::pair<bool, const Trie*> resolve(
-			std::forward_list<Key>& path,
-			typename std::forward_list<Key>::const_iterator currStep
+			key_list& path,
+			typename key_list::const_iterator currStep
 		) const {
-			auto matchingTrie = this->children_.find(*curr);
+			typename std::map<Key, Trie>::const_iterator matchingTrie(
+				this->children_.find(*currStep)
+			);
 
 			if ( matchingTrie != this->children_.end() ) {
-				auto nextStep = ++currStep;
+				typename key_list::const_iterator nextStep(
+					++currStep
+				);
 
 				if ( nextStep == path.end() ) {
-					return std::make_pair(true, &(*trie).second);
+					return std::make_pair(true, &(*matchingTrie).second);
 				} else {
-					return (*trie).second.resolve(path, nextStep);
+					return (*matchingTrie).second.resolve(path, nextStep);
 				}
 			} else {
 				return std::make_pair(false, nullptr);
