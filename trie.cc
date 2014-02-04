@@ -1,5 +1,5 @@
 #include <cstdint>
-#include <forward_list>
+#include <vector>
 #include <map>
 
 #include <cassert>
@@ -10,7 +10,7 @@ template <
 >
 class Trie {
 	public:
-		typedef std::forward_list<Key> key_list;
+		typedef std::vector<Key> key_list;
 
 		Trie():
 			children_() { }
