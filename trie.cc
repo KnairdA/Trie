@@ -26,26 +26,28 @@ class Trie {
 			}
 		}
 
-		inline const Trie* resolve(std::forward_list<Key> path) const {
+		inline std::pair<bool, const Trie*> resolve(
+			std::forward_list<Key> path
+		) const {
 			return this->resolve(path, path.begin());
 		}
 
-		inline const Trie* resolve(
+		inline std::pair<bool, const Trie*> resolve(
 			std::forward_list<Key>& path,
-			typename std::forward_list<Key>::const_iterator curr
+			typename std::forward_list<Key>::const_iterator currStep
 		) const {
-			auto trie = this->children_.find(*curr);
+			auto matchingTrie = this->children_.find(*curr);
 
-			if ( trie != this->children_.end() ) {
-				auto next = ++curr;
+			if ( matchingTrie != this->children_.end() ) {
+				auto nextStep = ++currStep;
 
-				if ( next == path.end() ) {
-					return &(*trie).second;
+				if ( nextStep == path.end() ) {
+					return std::make_pair(true, &(*trie).second);
 				} else {
-					return (*trie).second.resolve(path, next);
+					return (*trie).second.resolve(path, nextStep);
 				}
 			} else {
-				return nullptr;
+				return std::make_pair(false, nullptr);
 			}
 		}
 
@@ -62,7 +64,7 @@ int main() {
 	test.add({2, 1});
 	test.add({2, 1, 1});
 
-	assert(test.resolve({1, 2})    != nullptr);
-	assert(test.resolve({1, 2, 4}) != nullptr);
-	assert(test.resolve({3})       == nullptr);
+	assert(test.resolve({1, 2}).second    != nullptr);
+	assert(test.resolve({1, 2, 4}).second != nullptr);
+	assert(test.resolve({3}).second       == nullptr);
 }
