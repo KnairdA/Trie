@@ -18,6 +18,17 @@ class Trie {
 			this->add(path, path.begin());
 		}
 
+		inline void remove(key_list path) {
+			this->remove(path, path.begin());
+		}
+
+		inline std::pair<bool, const Trie*> resolve(key_list path) const {
+			return this->resolve(path, path.begin());
+		}
+
+	private:
+		std::map<Key, Trie> children_;
+
 		inline void add(
 			key_list& path,
 			typename key_list::const_iterator currStep
@@ -29,10 +40,6 @@ class Trie {
 
 				trie.add(path, ++currStep);
 			}
-		}
-
-		inline void remove(key_list path) {
-			this->remove(path, path.begin());
 		}
 
 		inline void remove(
@@ -59,10 +66,6 @@ class Trie {
 			}
 		}
 
-		inline std::pair<bool, const Trie*> resolve(key_list path) const {
-			return this->resolve(path, path.begin());
-		}
-
 		inline std::pair<bool, const Trie*> resolve(
 			key_list& path,
 			typename key_list::const_iterator currStep
@@ -85,9 +88,6 @@ class Trie {
 				return std::make_pair(false, nullptr);
 			}
 		}
-
-	private:
-		std::map<Key, Trie> children_;
 
 };
 
