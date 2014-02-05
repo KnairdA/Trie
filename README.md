@@ -7,4 +7,4 @@
 - Specializable tree element type
 - Adding, removing and resolving paths in the prefix tree
 - Builds on the standard library
-
+- Unit tests based on GoogleTest
