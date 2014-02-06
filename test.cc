@@ -61,6 +61,14 @@ TEST_F(TrieTest, Value) {
 
 	EXPECT_EQ(trie.get({1, 2}).first,        false);
 	EXPECT_EQ(trie.get({1, 2}).second,       nullptr);
+
+	trie.set({1, 2},       42);
+	trie.set({1, 1, 1, 1}, 255);
+
+	EXPECT_EQ(trie.get({1, 2}).first,         true);
+	EXPECT_EQ(*trie.get({1, 2}).second,       42);
+	EXPECT_EQ(trie.get({1, 1, 1, 1}).first,   true);
+	EXPECT_EQ(*trie.get({1, 1, 1, 1}).second, 255);
 }
 
 int main(int argc, char **argv) {

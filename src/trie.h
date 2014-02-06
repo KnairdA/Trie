@@ -51,6 +51,19 @@ class Trie {
 			}
 		}
 
+		inline bool set(key_list path, Value value) {
+			std::pair<bool, Trie*> tmp(this->resolve(path));
+
+			if ( tmp.first ) {
+				tmp.second->value_.first  = true;
+				tmp.second->value_.second = value;
+
+				return true;
+			} else {
+				return false;
+			}
+		}
+
 	private:
 		std::pair<bool, Value> value_;
 		std::map<Key, Trie> children_;
