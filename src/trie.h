@@ -5,31 +5,57 @@
 #include <map>
 
 template <
-	typename Key
+	typename Key,
+	typename Value = std::nullptr_t
 >
 class Trie {
 	public:
 		typedef std::vector<Key> key_list;
 
 		Trie():
-			children_() { }
+			value_(),
+			children_() {
+			this->value_.first = false;
+		}
 
 		inline void add(key_list path) {
 			this->add(path, path.begin());
+		}
+
+		inline void add(key_list path, Value value) {
+			Trie* tmp = this->add(path, path.begin());
+
+			tmp->value_.first  = true;
+			tmp->value_.second = value;
 		}
 
 		inline void remove(key_list path) {
 			this->remove(path, path.begin());
 		}
 
-		inline std::pair<bool, const Trie*> resolve(key_list path) const {
-			return this->resolve(path, path.begin());
+		inline bool check(key_list path) {
+			return this->resolve(path).first;
+		}
+
+		inline std::pair<bool, Value*> get(key_list path) {
+			std::pair<bool, Trie*> tmp(this->resolve(path));
+
+			if ( tmp.first ) {
+				if ( tmp.second->value_.first ) {
+					return std::make_pair(true, &tmp.second->value_.second);
+				} else {
+					return std::make_pair(false, nullptr);
+				}
+			} else {
+				return std::make_pair(false, nullptr);
+			}
 		}
 
 	private:
+		std::pair<bool, Value> value_;
 		std::map<Key, Trie> children_;
 
-		inline void add(
+		inline Trie* add(
 			key_list& path,
 			typename key_list::const_iterator currStep
 		) {
@@ -38,7 +64,9 @@ class Trie {
 					this->children_[*currStep]
 				);
 
-				trie.add(path, ++currStep);
+				return trie.add(path, ++currStep);
+			} else {
+				return this;
 			}
 		}
 
@@ -66,11 +94,15 @@ class Trie {
 			}
 		}
 
-		inline std::pair<bool, const Trie*> resolve(
+		inline std::pair<bool, Trie*> resolve(key_list path) {
+			return this->resolve(path, path.begin());
+		}
+
+		inline std::pair<bool, Trie*> resolve(
 			key_list& path,
 			typename key_list::const_iterator currStep
-		) const {
-			typename std::map<Key, Trie>::const_iterator matchingTrie(
+		) {
+			typename std::map<Key, Trie>::iterator matchingTrie(
 				this->children_.find(*currStep)
 			);
 

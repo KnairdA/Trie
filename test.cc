@@ -14,20 +14,12 @@ TEST_F(TrieTest, Basic) {
 	trie.add({2, 3, 4, 5});
 	trie.add({2, 3, 1, 2});
 
-	EXPECT_EQ(trie.resolve({1, 1, 1, 1}).first,  true);
-	EXPECT_NE(trie.resolve({1, 1, 1, 1}).second, nullptr);
+	EXPECT_EQ(trie.check({1, 1, 1, 1}),  true);
+	EXPECT_EQ(trie.check({1, 2, 1, 2}),  true);
+	EXPECT_EQ(trie.check({1, 2}),        true);
 
-	EXPECT_EQ(trie.resolve({1, 2, 1, 2}).first,  true);
-	EXPECT_NE(trie.resolve({1, 2, 1, 2}).second, nullptr);
-
-	EXPECT_EQ(trie.resolve({1, 2}).first,        true);
-	EXPECT_NE(trie.resolve({1, 2}).second,       nullptr);
-
-	EXPECT_EQ(trie.resolve({1, 1, 2, 3}).first,  false);
-	EXPECT_EQ(trie.resolve({1, 1, 2, 3}).second, nullptr);
-
-	EXPECT_EQ(trie.resolve({2, 1, 4}).first,     false);
-	EXPECT_EQ(trie.resolve({2, 1, 4}).second,    nullptr);
+	EXPECT_EQ(trie.check({1, 1, 2, 3}),  false);
+	EXPECT_EQ(trie.check({2, 1, 4}),     false);
 }
 
 TEST_F(TrieTest, Remove) {
@@ -40,22 +32,35 @@ TEST_F(TrieTest, Remove) {
 
 	trie.remove({1, 1, 1, 1});
 
-	EXPECT_EQ(trie.resolve({1, 1, 1, 1}).first,  false);
-	EXPECT_EQ(trie.resolve({1, 1, 1, 1}).second, nullptr);
-
-	EXPECT_EQ(trie.resolve({1, 2, 1, 2}).first,  true);
-	EXPECT_NE(trie.resolve({1, 2, 1, 2}).second, nullptr);
+	EXPECT_EQ(trie.check({1, 1, 1, 1}),  false);
+	EXPECT_EQ(trie.check({1, 2, 1, 2}),  true);
 
 	trie.remove({2, 3});
 
-	EXPECT_EQ(trie.resolve({2, 3, 4, 5}).first,  false);
-	EXPECT_EQ(trie.resolve({2, 3, 4, 5}).second, nullptr);
+	EXPECT_EQ(trie.check({2, 3, 4, 5}),  false);
+	EXPECT_EQ(trie.check({2, 3}),        false);
+	EXPECT_EQ(trie.check({2}),           true);
+}
 
-	EXPECT_EQ(trie.resolve({2, 3}).first,        false);
-	EXPECT_EQ(trie.resolve({2, 3}).second,       nullptr);
+TEST_F(TrieTest, Value) {
+	Trie<uint8_t, uint8_t> trie;
 
-	EXPECT_EQ(trie.resolve({2}).first,           true);
-	EXPECT_NE(trie.resolve({2}).second,          nullptr);
+	trie.add({1, 1, 1, 1}, 42);
+	trie.add({1, 2, 1, 2}, 43);
+	trie.add({2, 3, 4, 5}, 44);
+	trie.add({2, 3, 1, 2}, 45);
+
+	EXPECT_EQ(trie.get({1, 1, 1, 1}).first,  true);
+	EXPECT_EQ(*trie.get({1, 1, 1, 1}).second, 42);
+	EXPECT_EQ(trie.get({1, 2, 1, 2}).first,  true);
+	EXPECT_EQ(*trie.get({1, 2, 1, 2}).second, 43);
+	EXPECT_EQ(trie.get({2, 3, 4, 5}).first,  true);
+	EXPECT_EQ(*trie.get({2, 3, 4, 5}).second, 44);
+	EXPECT_EQ(trie.get({2, 3, 4, 5}).first,  true);
+	EXPECT_EQ(*trie.get({2, 3, 1, 2}).second, 45);
+
+	EXPECT_EQ(trie.get({1, 2}).first,        false);
+	EXPECT_EQ(trie.get({1, 2}).second,       nullptr);
 }
 
 int main(int argc, char **argv) {
