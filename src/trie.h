@@ -4,6 +4,8 @@
 #include <vector>
 #include <map>
 
+#include "utility.h"
+
 template <
 	typename Key,
 	typename Value = std::nullptr_t
@@ -34,29 +36,25 @@ class Trie {
 		}
 
 		inline bool check(key_list path) {
-			return this->resolve(path).first;
+			return this->resolve(path);
 		}
 
-		inline std::pair<bool, Value*> get(key_list path) {
-			std::pair<bool, Trie*> tmp(this->resolve(path));
-
-			if ( tmp.first ) {
-				if ( tmp.second->value_.first ) {
-					return std::make_pair(true, &tmp.second->value_.second);
+		inline detail::Result<Value*> get(key_list path) {
+			if ( auto tmp = this->resolve(path) ) {
+				if ( tmp.get()->value_.first ) {
+					return detail::Result<Value*>(&tmp.get()->value_.second);
 				} else {
-					return std::make_pair(false, nullptr);
+					return detail::Result<Value*>();
 				}
 			} else {
-				return std::make_pair(false, nullptr);
+				return detail::Result<Value*>();
 			}
 		}
 
 		inline bool set(key_list path, Value value) {
-			std::pair<bool, Trie*> tmp(this->resolve(path));
-
-			if ( tmp.first ) {
-				tmp.second->value_.first  = true;
-				tmp.second->value_.second = value;
+			if ( auto tmp = this->resolve(path) ) {
+				tmp.get()->value_.first  = true;
+				tmp.get()->value_.second = value;
 
 				return true;
 			} else {
@@ -107,11 +105,11 @@ class Trie {
 			}
 		}
 
-		inline std::pair<bool, Trie*> resolve(key_list path) {
+		inline detail::Result<Trie*> resolve(key_list path) {
 			return this->resolve(path, path.begin());
 		}
 
-		inline std::pair<bool, Trie*> resolve(
+		inline detail::Result<Trie*> resolve(
 			key_list& path,
 			typename key_list::const_iterator currStep
 		) {
@@ -125,12 +123,12 @@ class Trie {
 				);
 
 				if ( nextStep == path.end() ) {
-					return std::make_pair(true, &(*matchingTrie).second);
+					return detail::Result<Trie*>(&(*matchingTrie).second);
 				} else {
 					return (*matchingTrie).second.resolve(path, nextStep);
 				}
 			} else {
-				return std::make_pair(false, nullptr);
+				return detail::Result<Trie*>();
 			}
 		}
 

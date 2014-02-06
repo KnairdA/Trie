@@ -50,25 +50,25 @@ TEST_F(TrieTest, Value) {
 	trie.add({2, 3, 4, 5}, 44);
 	trie.add({2, 3, 1, 2}, 45);
 
-	EXPECT_EQ(trie.get({1, 1, 1, 1}).first,  true);
-	EXPECT_EQ(*trie.get({1, 1, 1, 1}).second, 42);
-	EXPECT_EQ(trie.get({1, 2, 1, 2}).first,  true);
-	EXPECT_EQ(*trie.get({1, 2, 1, 2}).second, 43);
-	EXPECT_EQ(trie.get({2, 3, 4, 5}).first,  true);
-	EXPECT_EQ(*trie.get({2, 3, 4, 5}).second, 44);
-	EXPECT_EQ(trie.get({2, 3, 4, 5}).first,  true);
-	EXPECT_EQ(*trie.get({2, 3, 1, 2}).second, 45);
+	EXPECT_EQ(trie.get({1, 1, 1, 1}),  true);
+	EXPECT_EQ(*trie.get({1, 1, 1, 1}).get(), 42);
+	EXPECT_EQ(trie.get({1, 2, 1, 2}),  true);
+	EXPECT_EQ(*trie.get({1, 2, 1, 2}).get(), 43);
+	EXPECT_EQ(trie.get({2, 3, 4, 5}),  true);
+	EXPECT_EQ(*trie.get({2, 3, 4, 5}).get(), 44);
+	EXPECT_EQ(trie.get({2, 3, 4, 5}),  true);
+	EXPECT_EQ(*trie.get({2, 3, 1, 2}).get(), 45);
 
-	EXPECT_EQ(trie.get({1, 2}).first,        false);
-	EXPECT_EQ(trie.get({1, 2}).second,       nullptr);
+	EXPECT_EQ(trie.get({1, 2}),        false);
+	EXPECT_EQ(trie.get({1, 2}).get(),  nullptr);
 
 	trie.set({1, 2},       42);
 	trie.set({1, 1, 1, 1}, 255);
 
-	EXPECT_EQ(trie.get({1, 2}).first,         true);
-	EXPECT_EQ(*trie.get({1, 2}).second,       42);
-	EXPECT_EQ(trie.get({1, 1, 1, 1}).first,   true);
-	EXPECT_EQ(*trie.get({1, 1, 1, 1}).second, 255);
+	EXPECT_EQ(trie.get({1, 2}),         true);
+	EXPECT_EQ(*trie.get({1, 2}).get(),       42);
+	EXPECT_EQ(trie.get({1, 1, 1, 1}),   true);
+	EXPECT_EQ(*trie.get({1, 1, 1, 1}).get(), 255);
 }
 
 int main(int argc, char **argv) {
