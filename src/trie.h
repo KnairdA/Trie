@@ -39,22 +39,28 @@ class Trie {
 			return this->resolve(path);
 		}
 
-		inline detail::Result<Value*> get(key_list path) {
+		inline detail::optional_ptr<Value> get(key_list path) {
 			if ( auto tmp = this->resolve(path) ) {
 				if ( tmp.get()->value_.first ) {
-					return detail::Result<Value*>(&tmp.get()->value_.second);
+					return detail::optional_ptr<Value>(
+						&tmp.get()->value_.second
+					);
 				} else {
-					return detail::Result<Value*>();
+					return detail::optional_ptr<Value>();
 				}
 			} else {
-				return detail::Result<Value*>();
+				return detail::optional_ptr<Value>();
 			}
+		}
+
+		inline void set(Value value) {
+			this->value_.first  = true;
+			this->value_.second = value;
 		}
 
 		inline bool set(key_list path, Value value) {
 			if ( auto tmp = this->resolve(path) ) {
-				tmp.get()->value_.first  = true;
-				tmp.get()->value_.second = value;
+				tmp.get()->set(value);
 
 				return true;
 			} else {
@@ -105,11 +111,11 @@ class Trie {
 			}
 		}
 
-		inline detail::Result<Trie*> resolve(key_list path) {
+		inline detail::optional_ptr<Trie> resolve(key_list path) {
 			return this->resolve(path, path.begin());
 		}
 
-		inline detail::Result<Trie*> resolve(
+		inline detail::optional_ptr<Trie> resolve(
 			key_list& path,
 			typename key_list::const_iterator currStep
 		) {
@@ -123,12 +129,14 @@ class Trie {
 				);
 
 				if ( nextStep == path.end() ) {
-					return detail::Result<Trie*>(&(*matchingTrie).second);
+					return detail::optional_ptr<Trie>(
+						&(*matchingTrie).second
+					);
 				} else {
 					return (*matchingTrie).second.resolve(path, nextStep);
 				}
 			} else {
-				return detail::Result<Trie*>();
+				return detail::optional_ptr<Trie>();
 			}
 		}
 

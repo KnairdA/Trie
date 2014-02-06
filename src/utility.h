@@ -4,24 +4,30 @@
 namespace detail {
 
 template <
-	typename Value
+	typename Type
 >
-struct Result {
-	Result():
-		value_(false, Value()) { }
+class optional_ptr {
+	public:
+		typedef typename std::add_pointer<Type>::type pointer;
+		typedef Type element_type;
 
-	Result(Value value):
-		value_(true, value) { }
+		optional_ptr():
+			value_(false, nullptr) { }
 
-	inline operator bool() const {
-		return this->value_.first;
-	}
+		optional_ptr(pointer ptr):
+			value_(true, ptr) { }
 
-	inline Value get() const {
-		return this->value_.second;
-	}
+		inline operator bool() const {
+			return this->value_.first;
+		}
 
-	const std::pair<bool, Value> value_;
+		inline pointer get() const {
+			return this->value_.second;
+		}
+
+	private:
+		const std::pair<bool, pointer> value_;
+
 };
 
 }
