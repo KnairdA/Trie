@@ -39,15 +39,17 @@ class Trie {
 			return this->resolve(path);
 		}
 
+		inline detail::optional_ptr<Value> get() {
+			if ( this->value_.first ) {
+				return detail::optional_ptr<Value>(&this->value_.second);
+			} else {
+				return detail::optional_ptr<Value>();
+			}
+		}
+
 		inline detail::optional_ptr<Value> get(key_list path) {
 			if ( auto tmp = this->resolve(path) ) {
-				if ( tmp.get()->value_.first ) {
-					return detail::optional_ptr<Value>(
-						&tmp.get()->value_.second
-					);
-				} else {
-					return detail::optional_ptr<Value>();
-				}
+				return tmp.get()->get();
 			} else {
 				return detail::optional_ptr<Value>();
 			}
