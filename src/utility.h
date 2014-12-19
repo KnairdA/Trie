@@ -17,11 +17,11 @@ class optional_ptr {
 		optional_ptr(pointer ptr):
 			value_(true, ptr) { }
 
-		inline operator bool() const {
+		operator bool() const {
 			return this->value_.first;
 		}
 
-		inline pointer get() const {
+		pointer get() const {
 			return this->value_.second;
 		}
 

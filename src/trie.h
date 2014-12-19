@@ -15,31 +15,29 @@ class Trie {
 		typedef std::vector<Key> key_list;
 
 		Trie():
-			value_(),
-			children_() {
-			this->value_.first = false;
+			value_(false, Value{}),
+			children_() { }
+
+		void add(key_list path) {
+			this->add(path.cbegin(), path.cend());
 		}
 
-		inline void add(key_list path) {
-			this->add(path, path.begin());
+		void add(key_list path, Value value) {
+			Trie* const target = this->add(path.cbegin(), path.cend());
+
+			target->value_.first  = true;
+			target->value_.second = value;
 		}
 
-		inline void add(key_list path, Value value) {
-			Trie* tmp = this->add(path, path.begin());
-
-			tmp->value_.first  = true;
-			tmp->value_.second = value;
+		void remove(key_list path) {
+			this->remove(path.cbegin(), path.cend());
 		}
 
-		inline void remove(key_list path) {
-			this->remove(path, path.begin());
-		}
-
-		inline bool check(key_list path) {
+		bool check(key_list path) {
 			return this->resolve(path);
 		}
 
-		inline detail::optional_ptr<Value> get() {
+		detail::optional_ptr<Value> get() {
 			if ( this->value_.first ) {
 				return detail::optional_ptr<Value>(&this->value_.second);
 			} else {
@@ -47,22 +45,22 @@ class Trie {
 			}
 		}
 
-		inline detail::optional_ptr<Value> get(key_list path) {
-			if ( auto tmp = this->resolve(path) ) {
-				return tmp.get()->get();
+		detail::optional_ptr<Value> get(key_list path) {
+			if ( const auto source = this->resolve(path) ) {
+				return source.get()->get();
 			} else {
 				return detail::optional_ptr<Value>();
 			}
 		}
 
-		inline void set(Value value) {
+		void set(const Value& value) {
 			this->value_.first  = true;
 			this->value_.second = value;
 		}
 
-		inline bool set(key_list path, Value value) {
-			if ( auto tmp = this->resolve(path) ) {
-				tmp.get()->set(value);
+		bool set(key_list path, const Value& value) {
+			if ( auto target = this->resolve(path) ) {
+				target.get()->set(value);
 
 				return true;
 			} else {
@@ -74,68 +72,63 @@ class Trie {
 		std::pair<bool, Value> value_;
 		std::map<Key, Trie> children_;
 
-		inline Trie* add(
-			key_list& path,
-			typename key_list::const_iterator currStep
+		Trie* add(
+			typename key_list::const_iterator current,
+			typename key_list::const_iterator end
 		) {
-			if ( currStep != path.end() ) {
-				Trie& trie(
-					this->children_[*currStep]
-				);
-
-				return trie.add(path, ++currStep);
+			if ( current != end ) {
+				return this->children_[*current].add(++current, end);
 			} else {
 				return this;
 			}
 		}
 
-		inline void remove(
-			key_list& path,
-			typename key_list::const_iterator currStep
+		void remove(
+			typename key_list::const_iterator current,
+			typename key_list::const_iterator end
 		) {
-			if ( currStep != path.end() ) {
-				typename std::map<Key, Trie>::iterator matchingTrie(
-					this->children_.find(*currStep)
+			if ( current != end ) {
+				typename std::map<Key, Trie>::iterator matching(
+					this->children_.find(*current)
 				);
 
-				if ( matchingTrie != this->children_.end() ) {
-					typename key_list::const_iterator nextStep(
-						++currStep
+				if ( matching != this->children_.cend() ) {
+					typename key_list::const_iterator next(
+						++current
 					);
 
-					if ( (*matchingTrie).second.children_.empty() ||
-					     nextStep == path.end() ) {
-						this->children_.erase(matchingTrie);
+					if ( next == end ) {
+						this->children_.erase(matching);
 					} else {
-						(*matchingTrie).second.remove(path, nextStep);
+						(*matching).second.remove(next, end);
 					}
 				}
 			}
 		}
 
-		inline detail::optional_ptr<Trie> resolve(key_list path) {
-			return this->resolve(path, path.begin());
+		detail::optional_ptr<Trie> resolve(key_list path) {
+			return this->resolve(path.cbegin(), path.cend());
 		}
 
-		inline detail::optional_ptr<Trie> resolve(
-			key_list& path,
-			typename key_list::const_iterator currStep
+		detail::optional_ptr<Trie> resolve(
+			typename key_list::const_iterator current,
+			typename key_list::const_iterator end
 		) {
-			typename std::map<Key, Trie>::iterator matchingTrie(
-				this->children_.find(*currStep)
+			typename std::map<Key, Trie>::iterator matching(
+				this->children_.find(*current)
 			);
 
-			if ( matchingTrie != this->children_.end() ) {
-				typename key_list::const_iterator nextStep(
-					++currStep
+			if ( matching != this->children_.cend() ) {
+				typename key_list::const_iterator next(
+					++current
 				);
 
-				if ( nextStep == path.end() ) {
+				if ( next == end ) {
 					return detail::optional_ptr<Trie>(
-						&(*matchingTrie).second
+						&(*matching).second
 					);
 				} else {
-					return (*matchingTrie).second.resolve(path, nextStep);
+					return (*matching).second.resolve(next, end);
 				}
 			} else {
 				return detail::optional_ptr<Trie>();
