@@ -77,7 +77,8 @@ class Trie {
 			typename key_list::const_iterator end
 		) {
 			if ( current != end ) {
-				return this->children_[*current].add(++current, end);
+				auto element = *current;
+				return this->children_[element].add(++current, end);
 			} else {
 				return this;
 			}
